@@ -16,4 +16,4 @@ function isDecimal(evt, element) {
         return false;
 
     return true;
-}    
+}

@@ -313,7 +313,17 @@ for (i = 0; i < rowLength; i++){
             });
             //display form login
 			$( ".login" ).load("loginForm.php");
-		});
+    });
+
+  $(document).keypress(function(event){
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if(keycode == '13'){
+      var total = $('#inputTotal').val();
+      var recieve = $('#inputReceived').val();
+      var change = recieve - total;
+      $("#inputChange").val(""+ change + " " + "$");
+    }
+});
 	</script>
 </head>
 <!--
@@ -674,7 +684,7 @@ desired effect
           <div class="form-group row">
             <label for="inputChange" class="col-sm-6 col-form-label">Change</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" id="inputChange" placeholder="0">
+              <input type="text" class="form-control" id="inputChange" placeholder="0" disabled="disabled">
             </div>
           </div>
         </form>
