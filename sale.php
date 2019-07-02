@@ -104,88 +104,94 @@ scratch. This page gets rid of all links and provides the needed markup only.
         var tot=$("#inputTotal").val();
 
         //insert data to record-Order
-        $.ajax({
-                    url: "setOrder.php",
+        // $.ajax({
+        //             url: "setOrder.php",
+        //             type:"post",
+        //             data:{RID: rid.trim(),
+        //                   UID: uid.trim(),
+        //                   SID: sid.trim(),
+        //                   LOG: long.trim(),
+        //                   LAT: lat.trim(),
+        //                   TOT: tot.trim(),
+        //                   ISC: isc.trim(),
+        //                   ISP: isp.trim(),
+        //                   ISY: isy.trim(),
+        //                   ISV: isv.trim(),
+        //                   ISD: isd.trim(),
+        //                   TOK: tok.trim(),
+        //                   WAIT: wait.trim()
+        //             },
+        //             dataType: "json",
+        //             success: function(result){
+        //               alert("Insert Success");
+        //             }
+        //         });
+        var oTable = document.getElementById('tblOrder');
+  //gets rows of table
+        var rowLength = oTable.rows.length;
+        //loops through rows    
+            for (i = 0; i < rowLength; i++){
+              var dis = '10';
+              var isd = '0';
+              var amn = $('#inputTotal').val();
+              //todo
+              var rid = '70';
+              //gets cells of current row
+              //var uid = oTable.rows[i+1].cells[1].innerHTML;
+              var uid = '1';
+              var pri = oTable.rows[i+1].cells[3].innerHTML;
+              var qty = oTable.rows[i+1].cells[4].innerHTML;
+              var des = oTable.rows[i+1].cells[5].innerHTML;
+              var size = oTable.rows[i+1].cells[2].innerHTML;
+              switch(size){
+                case "S":
+                size='1';
+                break;
+                case "M":
+                size='2';
+                break;
+                case "L":
+                size='3';
+                break;
+            }
+
+          $.ajax({
+                    url: "setOrderDetail.php",
                     type:"post",
                     data:{RID: rid.trim(),
-                          UID: uid.trim(),
-                          SID: sid.trim(),
-                          LOG: long.trim(),
-                          LAT: lat.trim(),
-                          TOT: tot.trim(),
-                          ISC: isc.trim(),
-                          ISP: isp.trim(),
-                          ISY: isy.trim(),
-                          ISV: isv.trim(),
-                          ISD: isd.trim(),
-                          TOK: tok.trim(),
-                          WAIT: wait.trim()
+                          PID: uid.trim(),
+                          PRI: pri.trim(),
+                          QTY: qty.trim(),
+                          AMN: amn.trim(),
+                          DIS: dis.trim(),
+                          SIZ: size.trim(),
+                          DES: des.trim(),
+                          ISD: isd.trim()
                     },
                     dataType: "json",
                     success: function(result){
                       alert("Insert Success");
                     }
                 });
-                     //update waiting number
-                     if(isp == 0){
-                        $.ajax({
-                            url: "upDatewaitingNB.php",
-                            type:"post",
-                            data:{
-                              WNB: wait.trim(),
-                            },
-                            dataType: "json",
-                            success: function(result){
-                              alert("Update Success");
-                            }
-                        });
-                        $('#myModal').modal('hide');
-						            $("#tblOrder").empty();
-                     }
-                     
-var oTable = document.getElementById('tblOrder');
-//gets rows of table
-var rowLength = oTable.rows.length;
-//loops through rows    
-for (i = 0; i < rowLength; i++){
-   //gets cells of current row
-   var product = oTable.rows[i+1].cells[1].innerHTML;
-   var siz = oTable.rows[i+1].cells[2].innerHTML;
-   switch(size){
-     case "S":
-     size='1';
-     break;
-     case "M":
-     size='2';
-     break;
-     case "L":
-     size='3';
-     break;
-   }
-   var price = oTable.rows[i+1].cells[3].innerHTML;
-   var qty = oTable.rows[i+1].cells[4].innerHTML;
-   var des = oTable.rows[i+1].cells[5].innerHTML;
+            }
 
-  //  $.ajax({
-  //                   url: "setOrderDetail.php",
-  //                   type:"post",
-  //                   data:{RID: rid.trim(),
-  //                         PID: uid.trim(),
-  //                         PRI: sid.trim(),
-  //                         QTY: qty.trim(),
-  //                         AMN: amn.trim(),
-  //                         DIS: dis.trim(),
-  //                         SIZ: siz.trim(),
-  //                         DES: des.trim(),
-  //                         ISD: isd.trim()
-  //                   },
-  //                   dataType: "json",
-  //                   success: function(result){
-  //                     alert("Insert Success");
-  //                   }
-  //               });
-  
-                }
+                     //update waiting number
+                    //  if(isp == 0){
+                    //     $.ajax({
+                    //         url: "upDatewaitingNB.php",
+                    //         type:"post",
+                    //         data:{
+                    //           WNB: wait.trim(),
+                    //         },
+                    //         dataType: "json",
+                    //         success: function(result){
+                    //           alert("Update Success");
+                    //         }
+                    //     });
+                    //     $('#myModal').modal('hide');
+						        //     $("#tblOrder").empty();
+                    //  }
+                     
             });
 
 			$("button").click(function(){
@@ -367,6 +373,9 @@ desired effect
         <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
           <span class="sr-only">Toggle navigation</span>
         </a>
+        <div class="pull-left">
+            <h2 style="color:#FFFFFF"><b>POINT OF SALE</b></h2>
+        </div>
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
           <ul class="nav navbar-nav">
@@ -583,18 +592,13 @@ desired effect
         $result = $conn->query($sql);
         ?>
       <section class="content-header">
-      <div class="container-fluid col-md-12">
-          <div>
-            <h2 style="text-align: center">POINT OF SALE</h2>
-          </div>
-          </div>
 
-            <div class="btn">
+            <div class="container-fluid col-md-7">
             <?php
                if ($result->num_rows > 0) {
                 // output data of each row
              while($row = $result->fetch_assoc()) {
-              echo '<button type="button" class="btn btn-secondary" style="margin: 2px 2px;">'.$row["category"].'</button>';
+              echo '<button type="button" class="btn btn-secondary" style="margin: 3px 3px;">'.$row["category"].'</button>';
                } 
             } else {
                 echo "0 results";

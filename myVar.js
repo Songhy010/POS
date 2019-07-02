@@ -59,10 +59,26 @@ class myVar {
     }
 
     //getmaxrecordID
+    setsRecordID(record){
+        this.record=record;
+   }
    getsRecordID(){
         return this.record;
    }
-   setsRecordID(record){
-        this.record=record;
+
+   //getProductID
+   setProductID(pid){
+        this.pid=pid;
    }
+   getProductID(){
+       return this.pid;
+   }
+
+   //getOrderRecordID
+    setoRecordID(record){
+    this.record=record;
+    }
+    getoRecordID(){
+        return this.record;
+    }
 }
