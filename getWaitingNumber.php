@@ -2,7 +2,7 @@
 include "dbconnect.php";
 if($_SERVER['REQUEST_METHOD']=="GET"){
 	//$para = $_GET["CAT"];
-	    $sql = "SELECT waiting_num FROM waiting_number";
+	    $sql = "SELECT waiting_num, isbusy FROM waiting_number";
 
 	    $stmt = mysqli_query($conn, $sql);
 	    $result = array(); 

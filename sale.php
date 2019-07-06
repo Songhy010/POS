@@ -47,22 +47,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </div>
         <div class="modal-body">
           
-       <?php        
-		    include('dbconnect.php');        
-			$sql = "SELECT waiting_num, isbusy FROM waiting_number";
-			$result = $conn->query($sql);
-			if ($result->num_rows > 0) {
-				while($row = $result->fetch_assoc()) {
-          if($row['isbusy'] == 1){
-            echo '<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#222D32; text-align: center; padding-top:34px;"><font color="#FFFFFF">'.$row["waiting_num"].'</font></label>';
-          }else{
-            echo '<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#3C8DBC; text-align: center; padding-top:34px;"><font color="#FFFFFF">'.$row["waiting_num"].'</font></label>';
-          }
-				} 
-            } else {
-                echo "0 results";
-            }
-		?>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
@@ -82,7 +66,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 		$(document).ready(function(){
 			
       var servics = "<?php include('URL.php');  echo $sevices ?>";
-      $(".lbl").click(function(){
+        $('.modal-body').on("click",".lbl",function(){
 
         const mVar = new myVar("");
 
@@ -94,7 +78,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         var isc = '1';
         var isp = '0';
           if($("#inputReceived").val() >= $("#inputTotal").val()){
-            paid = '1';
+            isp = '1';
           }
         var isy = '0';
         var isv = '1';
@@ -104,45 +88,43 @@ scratch. This page gets rid of all links and provides the needed markup only.
         var tot=$("#inputTotal").val();
 
         //insert data to record-Order
-        // $.ajax({
-        //             url: "setOrder.php",
-        //             type:"post",
-        //             data:{RID: rid.trim(),
-        //                   UID: uid.trim(),
-        //                   SID: sid.trim(),
-        //                   LOG: long.trim(),
-        //                   LAT: lat.trim(),
-        //                   TOT: tot.trim(),
-        //                   ISC: isc.trim(),
-        //                   ISP: isp.trim(),
-        //                   ISY: isy.trim(),
-        //                   ISV: isv.trim(),
-        //                   ISD: isd.trim(),
-        //                   TOK: tok.trim(),
-        //                   WAIT: wait.trim()
-        //             },
-        //             dataType: "json",
-        //             success: function(result){
-        //               alert("Insert Success");
-        //             }
-        //         });
+        $.ajax({
+                    url: "setOrder.php",
+                    type:"post",
+                    data:{RID: rid.trim(),
+                          UID: uid.trim(),
+                          SID: sid.trim(),
+                          LOG: long.trim(),
+                          LAT: lat.trim(),
+                          TOT: tot.trim(),
+                          ISC: isc.trim(),
+                          ISP: isp.trim(),
+                          ISY: isy.trim(),
+                          ISV: isv.trim(),
+                          ISD: isd.trim(),
+                          TOK: tok.trim(),
+                          WAIT: wait.trim()
+                    },
+                    dataType: "json",
+                    success: function(result){
+                      
+                    }
+                });
         var oTable = document.getElementById('tblOrder');
   //gets rows of table
-        var rowLength = oTable.rows.length;
-        //loops through rows    
-            for (i = 0; i < rowLength; i++){
-              var dis = '10';
-              var isd = '0';
-              var amn = $('#inputTotal').val();
-              //todo
-              var rid = '70';
-              //gets cells of current row
-              //var uid = oTable.rows[i+1].cells[1].innerHTML;
-              var uid = '1';
-              var pri = oTable.rows[i+1].cells[3].innerHTML;
-              var qty = oTable.rows[i+1].cells[4].innerHTML;
+        var rowLength = oTable.rows.length - 1;
+
+          for(var i=0; i<rowLength;i++){
+            var dis = '10';
+            var isd = '0';
+              
+              //gets cells of current row` 
+              var pid = oTable.rows[i+1].cells[0].innerHTML;
+              var pri = oTable.rows[i+1].cells[3].innerHTML.trim();
+              var qty = oTable.rows[i+1].cells[4].innerHTML.trim();
               var des = oTable.rows[i+1].cells[5].innerHTML;
               var size = oTable.rows[i+1].cells[2].innerHTML;
+              var amount = Number(pri) * Number(qty);
               switch(size){
                 case "S":
                 size='1';
@@ -159,10 +141,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     url: "setOrderDetail.php",
                     type:"post",
                     data:{RID: rid.trim(),
-                          PID: uid.trim(),
+                          PID: pid.trim(),
                           PRI: pri.trim(),
                           QTY: qty.trim(),
-                          AMN: amn.trim(),
+                          AMN: amount,
                           DIS: dis.trim(),
                           SIZ: size.trim(),
                           DES: des.trim(),
@@ -170,28 +152,44 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     },
                     dataType: "json",
                     success: function(result){
-                      alert("Insert Success");
+                      
                     }
                 });
-            }
-
+          }
+        
+                      
                      //update waiting number
-                    //  if(isp == 0){
-                    //     $.ajax({
-                    //         url: "upDatewaitingNB.php",
-                    //         type:"post",
-                    //         data:{
-                    //           WNB: wait.trim(),
-                    //         },
-                    //         dataType: "json",
-                    //         success: function(result){
-                    //           alert("Update Success");
-                    //         }
-                    //     });
-                    //     $('#myModal').modal('hide');
-						        //     $("#tblOrder").empty();
-                    //  }
-                     
+                     if(isp == 0){
+                        $.ajax({
+                            url: "upDatewaitingNB.php",
+                            type:"post",
+                            data:{
+                              WNB: wait.trim(),
+                            },
+                            dataType: "json",
+                            success: function(result){
+                              
+                            }
+                        });
+                     }
+                        $('#myModal').modal('hide');
+						            $("#tblOrder").empty();
+                        $('#tblOrder').html('<thead>'+
+                                    '<tr>'+
+                                      '<th scope="col">ID</th>'+
+                                      '<th scope="col">Product</th>'+
+                                      '<th scope="col">Size</th>'+
+                                      '<th scope="col">Price</th>'+
+                                      '<th scope="col">Quantity</th>'+
+                                      '<th scope="col">Description</th>'+
+                                      '<th scope="col">Action</th>'+
+                                    '</tr>'+
+                                  '</thead>');
+                     alert("Insert Success");
+                     $('#inputTotal').val('');
+                     $('#inputReceived').val('');
+                     $('#inputChange').val('');
+
             });
 
 			$("button").click(function(){
@@ -200,11 +198,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
 					
 				}else if(name=="PAYMENT"){
 					var rows = document.getElementById("tblOrder").getElementsByTagName("tbody").length;
-					if(rows > 0){
-						$('#myModal').modal();
-					}else{
-            alert("Table no Data");
-          }
           
           $.getJSON(servics+'getRecordmaxID.php',function(data){
 			      $.each(data.product,function(){
@@ -217,9 +210,27 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
               mVar.setsRecordID(""+(Number(rid) + 1));
              }
-              //mVar.setsRecordID();
+              
             });
           });
+          //get WaitingNumber
+          $('.modal-body').empty();
+          $.getJSON(servics+'getWaitingNumber.php',function(data){
+			      $.each(data.wait,function(){
+                  var wait = this["waiting_num"];
+                  var busy = this["isbusy"];
+                  if(busy == 1){
+                  $('.modal-body').append('<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#222D32; text-align: center; padding-top:34px;"><font color="#FFFFFF">'+wait+'</font></label>');
+                  }else{
+                    $('.modal-body').append('<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#3C8DBC; text-align: center; padding-top:34px;"><font color="#FFFFFF">'+wait+'</font></label>');
+                  }
+            });
+          });
+          if(rows > 0){
+						$('#myModal').modal();
+					}else{
+            alert("Table no Data");
+          }
 				}else if(name=="Search"){	
 					 var textboxvalue = $('input[name=q]').val();
 					 $("#product_card").empty();
@@ -229,10 +240,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 							$("#product_card").append($('<div class="card" style="float:left; margin-left:10px; margin-top:10px; border-radius: 5px; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2)">'
 								+'<center>'
 								+'<div class="img-container">'
-									+'	<img id="imgProduct" class="card-img-top" style="height:120px; width:130px;border-radius: 5px 5px 0 0;" src="http://localhost:8181/POS-master/Product_PIC/'+this["product_name"]+'.jpg" >'
+									+'	<img id="imgProduct" class="card-img-top" style="height:120px; width:130px;border-radius: 5px 5px 0 0;" src="http://localhost:8181/POS/Product_PIC/'+this["product_name"]+'.jpg" >'
 									+'</div>'
 									+'<div class="card-body" style="width:100px; height=80px;">'
 										+'<h6 id="hName" class="cardTitle" style="font-weight: bold" >'+this["product_name"]+'</h6>'
+                    +'<h6 id="lbli" class="cardTitle" style="font-weight: bold; display: none" >'+this["product_id"]+'</h6>'
 									+'</div>'
 								+'</center>'
 							+'</div>').attr({id:'asd'}));
@@ -246,7 +258,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 					if(tvQty == "" || tvQty == 0 || des =="" || select == ""){
 					alert("Please fill all info !!!");
 					}else {
-						$("#tblOrder").append("<tbody><tr><th scope=row>1</th><td>"+$("#lblName").text()+"</td><td>"+$("#selectSize option:selected").val()+"</td><td>"+$("#pri").text()+"</td><td>"+$("#qty").val()+"</td><td>"+$("#desc").val()+"</td><td>Hello</td></tr></tbody>");
+						$("#tblOrder").append("<tbody><tr><th scope=row>"+$("#lblid").text()+"</th><td>"+$("#lblName").text()+"</td><td>"+$("#selectSize option:selected").val()+"</td><td>"+$("#pri").text()+"</td><td>"+$("#qty").val()+"</td><td>"+$("#desc").val()+"</td><td>Hello</td></tr></tbody>");
 						document.getElementById("myForm").style.display = "none";
             $("#pri").html('');
             $("#qty").val('');
@@ -281,10 +293,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 							$("#product_card").append($('<div class="card" style="float:left; margin-left:10px; margin-top:10px; border-radius: 5px; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2)">'
 								+'<center>'
 								+'<div class="img-container">'
-									+'	<img id="imgProduct" class="card-img-top" style="height:120px; width:130px;border-radius: 5px 5px 0 0;" src="http://localhost:8181/POS-master/Product_PIC/'+this["product_name"]+'.jpg" >'
+									+'	<img id="imgProduct" class="card-img-top" style="height:120px; width:130px;border-radius: 5px 5px 0 0;" src="http://localhost:8181/POS/Product_PIC/'+this["product_name"]+'.jpg" >'
 									+'</div>'
 									+'<div class="card-body" style="width:100px; height=80px;">'
 										+'<h6 id="hName" class="cardTitle" style="font-weight: bold" >'+this["product_name"]+'</h6>'
+                    +'<h6 id="lbli" class="cardTitle" style="font-weight: bold; display: none" >'+this["product_id"]+'</h6>'
 									+'</div>'
 								+'</center>'
 							+'</div>').attr({id:'asd'}));
@@ -294,9 +307,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
 				}
 			});
 			$('#product_card').on("click",".card",function(){
-				var name = $(this).text();
+				var str = $(this).text();
+        var id =  str[str.length -1];
+        var name =  str.substring(0, str.length - 1);
 				
 				document.getElementById("lblName").innerHTML = name;
+        document.getElementById("lblid").innerHTML = id;
 				document.getElementById("myForm").style.display = "block";
 				
 			});
@@ -630,6 +646,7 @@ desired effect
 		<div class="form-popup" id="myForm">
 			<form action="/action_page.php" class="form-container">
 				<h1 id = "lblName"></h1>
+        <h1 id = "lblid" style="display:none"></h1>
 				<select id = "selectSize" class="size">
 					<option value="">Size</option>
 					<option value="S">Small</option>
