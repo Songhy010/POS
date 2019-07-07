@@ -67,19 +67,35 @@ scratch. This page gets rid of all links and provides the needed markup only.
       var servics = "<?php include('URL.php');  echo $sevices ?>";
       //for study lbl click between List_order and Payment
       var list = "";
+	  // set record_orderID for payment
+	  var record_orderID = "";
+	  var WB = "";
         $('.modal-body').on("click",".lbl",function(){
+		var wait = $(this).text();
+		WB = wait;
         if(list == "list"){
-
-          //get no yet paid
-          $.ajax({
-                    url: "getOrderList.php",
-                    type:"get",
-                    data:{PRO: name.trim(), SIZE: size.trim()},
-                    dataType: "json",
-                    success: function(result){
-                      
-                    }
-                });
+			$("#tblOrder").empty();
+			$('#tblOrder').html('<thead>'+
+                                    '<tr>'+
+                                      '<th scope="col">ID</th>'+
+                                      '<th scope="col">Product</th>'+
+                                      '<th scope="col">Size</th>'+
+                                      '<th scope="col">Price</th>'+
+                                      '<th scope="col">Quantity</th>'+
+                                      '<th scope="col">Description</th>'+
+                                      '<th scope="col">Action</th>'+
+                                    '</tr>'+
+                                  '</thead>');
+			$.getJSON(servics+'getorderlist.php?WNB='+wait+'',function(data){
+				$.each(data.product,function(){
+					$("#tblOrder").append("<tbody><tr><th scope=row>"+this["product_id"]+"</th><td>"+this["product_name"]+"</td><td>"+this["size"]+"</td><td>"+this["order_productprice"]+"</td><td>"+this["order_quantity"]+"</td><td>"+this["order_description"]+"</td><td>Hello</td></tr></tbody>");	
+					$("#inputTotal").val(""+this["record_total"]);
+					record_orderID = this["record_id"];
+				});
+				
+				$('#myModal').modal('hide');
+				
+			});
         }else{
         const mVar = new myVar("");
 
@@ -178,6 +194,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             type:"post",
                             data:{
                               WNB: wait.trim(),
+							  STA: '1'
                             },
                             dataType: "json",
                             success: function(result){
@@ -186,7 +203,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         });
                      }
                         $('#myModal').modal('hide');
-						            $("#tblOrder").empty();
+						$("#tblOrder").empty();
                         $('#tblOrder').html('<thead>'+
                                     '<tr>'+
                                       '<th scope="col">ID</th>'+
@@ -198,7 +215,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                       '<th scope="col">Action</th>'+
                                     '</tr>'+
                                   '</thead>');
-                     alert("Insert Success");
+                     alert("Success");
                      $('#inputTotal').val('');
                      $('#inputReceived').val('');
                      $('#inputChange').val('');
@@ -210,40 +227,95 @@ scratch. This page gets rid of all links and provides the needed markup only.
 				if(name=="CANCEL"){
 					
 				}else if(name=="PAYMENT"){
-					var rows = document.getElementById("tblOrder").getElementsByTagName("tbody").length;
-          list = "";
-          $.getJSON(servics+'getRecordmaxID.php',function(data){
-			      $.each(data.product,function(){
-              const mVar = new myVar();
-            
-              if(this["record_id"] == null){
-                mVar.setsRecordID('1');
-             }else{
-               var rid= parseInt(this["record_id"]);
-
-              mVar.setsRecordID(""+(Number(rid) + 1));
-             }
-              
-            });
-          });
-          //get WaitingNumber
-          $('.modal-body').empty();
-          $.getJSON(servics+'getWaitingNumber.php',function(data){
-			      $.each(data.wait,function(){
-                  var wait = this["waiting_num"];
-                  var busy = this["isbusy"];
-                  if(busy == 1){
-                  $('.modal-body').append('<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#222D32; text-align: center; padding-top:34px;"><font color="#FFFFFF">'+wait+'</font></label>');
-                  }else{
-                    $('.modal-body').append('<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#3C8DBC; text-align: center; padding-top:34px;"><font color="#FFFFFF">'+wait+'</font></label>');
-                  }
-            });
-          });
-          if(rows > 0){
-						$('#myModal').modal();
+					if(list == "list" ){
+						if($("#inputReceived").val() < $("#inputTotal").val()){
+							alert("ប្រាប់ទទួលមិនគ្រប់គ្រាន់! ចូលបង់ប្រាក់ជាថ្មី!"+record_orderID);
+							list = "list";
+						}else{
+							list = "";
+							// Todo 
+							$.ajax({
+								url: "upRecordOrderISP.php",
+								type:"post",
+								data:{
+								  RID: record_orderID.trim(),
+								  STA: '1'
+								},
+								dataType: "json",
+								success: function(result){
+								  
+								}
+							});
+							
+							$.ajax({
+								url: "upDatewaitingNB.php",
+								type:"post",
+								data:{
+								  WNB: WB.trim(),
+								  STA: '0'
+								},
+								dataType: "json",
+								success: function(result){
+								  
+								}
+							});
+							
+							alert("ការបង់ប្រាប់ទទួលបានជោគជ័យ!");
+							$("#tblOrder").empty();
+							$('#tblOrder').html('<thead>'+
+                                    '<tr>'+
+                                      '<th scope="col">ID</th>'+
+                                      '<th scope="col">Product</th>'+
+                                      '<th scope="col">Size</th>'+
+                                      '<th scope="col">Price</th>'+
+                                      '<th scope="col">Quantity</th>'+
+                                      '<th scope="col">Description</th>'+
+                                      '<th scope="col">Action</th>'+
+                                    '</tr>'+
+                                  '</thead>');
+								  $('#inputTotal').val('');
+							$('#inputReceived').val('');
+							$('#inputChange').val('');
+							
+						}
 					}else{
-            alert("Table no Data");
-          }
+					var rows = document.getElementById("tblOrder").getElementsByTagName("tbody").length;
+					list = "";
+					$.getJSON(servics+'getRecordmaxID.php',function(data){
+						$.each(data.product,function(){
+							const mVar = new myVar();
+					
+							if(this["record_id"] == null){
+							mVar.setsRecordID('1');
+							}else{
+								var rid= parseInt(this["record_id"]);
+
+								mVar.setsRecordID(""+(Number(rid) + 1));
+							}
+					  
+						});
+					});
+				  //get WaitingNumber
+					$('.modal-body').empty();
+					$.getJSON(servics+'getWaitingNumber.php',function(data){
+						  $.each(data.wait,function(){
+						  var wait = this["waiting_num"];
+						  var busy = this["isbusy"];
+						  if(busy == 1){
+						  $('.modal-body').append('<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#222D32; text-align: center; padding-top:34px;"><font color="#FFFFFF">'+wait+'</font></label>');
+						  }else{
+							$('.modal-body').append('<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#3C8DBC; text-align: center; padding-top:34px;"><font color="#FFFFFF">'+wait+'</font></label>');
+						  }
+						});
+					});
+						if(rows > 0){
+							$('#myModal').modal();
+						}else{
+							alert("Table no Data");
+						}
+						
+					}
+					
 				}else if(name=="Search"){	
 					 var textboxvalue = $('input[name=q]').val();
 					 $("#product_card").empty();
@@ -253,7 +325,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 							$("#product_card").append($('<div class="card" style="float:left; margin-left:10px; margin-top:10px; border-radius: 5px; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2)">'
 								+'<center>'
 								+'<div class="img-container">'
-									+'	<img id="imgProduct" class="card-img-top" style="height:120px; width:130px;border-radius: 5px 5px 0 0;" src="http://localhost:8181/POS/Product_PIC/'+this["product_name"]+'.jpg" >'
+									+'	<img id="imgProduct" class="card-img-top" style="height:120px; width:130px;border-radius: 5px 5px 0 0;" src="http://localhost:90/POS/Product_PIC/'+this["product_name"]+'.jpg" >'
 									+'</div>'
 									+'<div class="card-body" style="width:100px; height=80px;">'
 										+'<h6 id="hName" class="cardTitle" style="font-weight: bold" >'+this["product_name"]+'</h6>'
@@ -266,7 +338,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 					});
 				}else if(name=="ADD"){
 					var tvQty = $("#qty").val();
-          var des = $("#desc").val();
+					var des = $("#desc").val();
 					var select = $("#selectSize").val();
 					if(tvQty == "" || tvQty == 0 || des =="" || select == ""){
 					alert("Please fill all info !!!");
@@ -291,7 +363,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 				}else if(name=="BACK"){
 					document.getElementById("myForm").style.display = "none";
 				}else if(name=="Close"){
-
+					list = "";
 				}else{
 					/*$.post("getProduct.php",{
 						PRO:name
@@ -306,7 +378,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 							$("#product_card").append($('<div class="card" style="float:left; margin-left:10px; margin-top:10px; border-radius: 5px; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2)">'
 								+'<center>'
 								+'<div class="img-container">'
-									+'	<img id="imgProduct" class="card-img-top" style="height:120px; width:130px;border-radius: 5px 5px 0 0;" src="http://localhost:8181/POS/Product_PIC/'+this["product_name"]+'.jpg" >'
+									+'	<img id="imgProduct" class="card-img-top" style="height:120px; width:130px;border-radius: 5px 5px 0 0;" src="http://localhost:90/POS/Product_PIC/'+this["product_name"]+'.jpg" >'
 									+'</div>'
 									+'<div class="card-body" style="width:100px; height=80px;">'
 										+'<h6 id="hName" class="cardTitle" style="font-weight: bold" >'+this["product_name"]+'</h6>'

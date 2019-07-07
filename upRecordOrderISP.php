@@ -1,10 +1,10 @@
 <?php
 include "dbconnect.php";
 if($_SERVER['REQUEST_METHOD']=="POST"){
-    	$waitNB = $_POST["WNB"];
+    	$rid = $_POST["RID"];
 	$status = $_POST["STA"];
 
-	    $sql = "UPDATE waiting_number SET isbusy= $status where waiting_num = '$waitNB'";
+	    $sql = "UPDATE record_orders SET record_orders.record_ispaid = $status WHERE record_orders.record_id = $rid";
 
 	    $stmt = mysqli_query($conn, $sql);
 	    $result = array(); 

@@ -1,4 +1,4 @@
 <?php 
-$url = 'http://localhost:8181/POS/Product_PIC/';
-$sevices = 'http://localhost:8181/POS/';
+$url = 'http://localhost:90/POS/Product_PIC/';
+$sevices = 'http://localhost:90/POS/';
 ?>
