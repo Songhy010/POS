@@ -64,10 +64,23 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 	<script>
 		$(document).ready(function(){
-			
       var servics = "<?php include('URL.php');  echo $sevices ?>";
+      //for study lbl click between List_order and Payment
+      var list = "";
         $('.modal-body').on("click",".lbl",function(){
+        if(list == "list"){
 
+          //get no yet paid
+          $.ajax({
+                    url: "getOrderList.php",
+                    type:"get",
+                    data:{PRO: name.trim(), SIZE: size.trim()},
+                    dataType: "json",
+                    success: function(result){
+                      
+                    }
+                });
+        }else{
         const mVar = new myVar("");
 
         var wait = $(this).text();
@@ -115,7 +128,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         var rowLength = oTable.rows.length - 1;
 
           for(var i=0; i<rowLength;i++){
-            var dis = '10';
+            var dis = '0';
             var isd = '0';
               
               //gets cells of current row` 
@@ -189,7 +202,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                      $('#inputTotal').val('');
                      $('#inputReceived').val('');
                      $('#inputChange').val('');
-
+                    }
             });
 
 			$("button").click(function(){
@@ -198,7 +211,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 					
 				}else if(name=="PAYMENT"){
 					var rows = document.getElementById("tblOrder").getElementsByTagName("tbody").length;
-          
+          list = "";
           $.getJSON(servics+'getRecordmaxID.php',function(data){
 			      $.each(data.product,function(){
               const mVar = new myVar();
@@ -333,6 +346,25 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     }
                 });
             });
+          
+            $('#list').click(function(){
+              list = "list";
+              $('#myModal').modal();
+              $('.modal-body').empty();
+
+              $.getJSON(servics+'getWaitingNumber.php',function(data){
+			      $.each(data.wait,function(){
+                  var wait = this["waiting_num"];
+                  var busy = this["isbusy"];
+                  if(busy == 1){
+                  $('.modal-body').append('<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#222D32; text-align: center; padding-top:34px;"><font color="#FFFFFF">'+wait+'</font></label>');
+                  }else{
+                    $('.modal-body').append('<label id ="lblWait" class="lbl" style="margin: 2px 2px; width:80px; height:80px; background:#3C8DBC; text-align: center; padding-top:34px;"><font color="#FFFFFF">'+wait+'</font></label>');
+                  }
+            });
+          });
+
+          });
             //display form login
 			$( ".login" ).load("loginForm.php");
     });
@@ -577,7 +609,7 @@ desired effect
           <li class="header">HEADER</li>
           <!-- Optionally, you can add icons to the links -->
           <li class="active"><a href="#"><i class="fas fa-cart-arrow-down"></i> <span>POS</span></a></li>
-          <li><a href="#"><i class="far fa-list-alt"></i> <span>List Detail</span></a></li>
+          <li id="list"><a href="#"><i class="far fa-list-alt"></i> <span>List Detail</span></a></li>
           <li class="treeview">
             <a href="#"><i class="fa fa-link"></i> <span>Multilevel</span>
               <span class="pull-right-container">
